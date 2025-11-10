@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { ArrowUpDown, Calendar } from 'lucide-react';
-import { Player } from '../types';
+import { Player, PlayerWithTotal } from '../types';
 import { getAllMonths, calculateTotalScore } from '../utils/scores';
 
 interface ScoresTableProps {
@@ -20,7 +20,9 @@ export default function ScoresTable({ players }: ScoresTableProps) {
   const sortedPlayers = useMemo(() => {
     const playersWithScores = players.map(player => ({
       ...player,
-      currentScore: selectedMonth ? (player.scores[selectedMonth] || 0) : calculateTotalScore(player.scores)
+      currentScore: selectedMonth === 'total'
+        ? calculateTotalScore(player.scores)
+        : (player.scores[selectedMonth] || 0)
     }));
 
     return playersWithScores.sort((a, b) => {
@@ -35,6 +37,7 @@ export default function ScoresTable({ players }: ScoresTableProps) {
       }
     });
   }, [players, selectedMonth, sortType, sortOrder]);
+
 
   const toggleSort = (type: SortType) => {
     if (sortType === type) {
@@ -66,17 +69,18 @@ export default function ScoresTable({ players }: ScoresTableProps) {
 
         <div className="flex items-center gap-3">
           <Calendar className="w-5 h-5 text-slate-400" />
-          <select
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-            className="bg-slate-700 text-white px-4 py-2 rounded-lg border border-slate-600 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
-          >
-            {availableMonths.map(month => (
-              <option key={month} value={month}>
-                {formatMonthLabel(month)}
-              </option>
-            ))}
-          </select>
+        <select
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+          className="bg-slate-700 text-white px-4 py-2 rounded-lg border border-slate-600 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
+        >
+          <option value="total">Total</option>
+          {availableMonths.map(month => (
+            <option key={month} value={month}>
+              {formatMonthLabel(month)}
+            </option>
+          ))}
+        </select>
         </div>
       </div>
 
